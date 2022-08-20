@@ -47,3 +47,4 @@ class Blockchain:
 	def announce_block(self, block):
 		for node in self.nodes:
 			r.post(f"http://{node}/new_block", json={'block':block})
+
