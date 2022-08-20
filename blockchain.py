@@ -2,6 +2,7 @@ import time as t
 import hashlib
 import requests as r
 from tinydb import TinyDB
+from Utilities import *
 
 
 
@@ -27,6 +28,18 @@ class Blockchain:
 	
 	def make_block(self, forger, previous_hash, proof:int):
 		""" creates blocks and verifies transactions """
+		for transaction in self.Unverified_transactions:
+			keys = KEYS()
+			sender = transaction['sender']
+			receiver = transaction['receiver']
+			signature = transaction['signature']
+			transaction_id = transaction['id']
+			#TODO double spend check
+			valid = keys.verify_signature(signature,sender,receiver)
+			if valid == True:
+				self.verified_transactions.append(transaction)
+			else:
+				self.Unverified_transactions.remove(transaction)
 		block = {
 			'index': len(self.chain),
 			'timestamp': t.time(),
