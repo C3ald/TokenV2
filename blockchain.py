@@ -26,6 +26,18 @@ class Blockchain:
 			# Checks the nodes database for data
 			self.nodes = self.Node_DB.all()
 	
+	def double_spend_check(self, transaction_id, signature):
+		""" Checks for double spending, returns false if transaction is invalid and true if it is completely valid """
+		valid_transaction = True
+		for block in self.chain:
+			for transaction in block['transactions']:
+				if transaction['id'] == transaction_id or transaction['signature'] == signature:
+					return False
+		return True
+
+
+
+
 	def make_block(self, forger, previous_hash, proof:int):
 		""" creates blocks and verifies transactions """
 		for transaction in self.Unverified_transactions:
@@ -35,8 +47,9 @@ class Blockchain:
 			signature = transaction['signature']
 			transaction_id = transaction['id']
 			#TODO double spend check
-			valid = keys.verify_signature(signature,sender,receiver)
-			if valid == True:
+			valid_transaction_id = self.double_spend_check(transaction_id, signature)
+			valid_keys = keys.verify_signature(signature,sender,receiver)
+			if valid_keys == True and valid_transaction_id == True:
 				self.verified_transactions.append(transaction)
 			else:
 				self.Unverified_transactions.remove(transaction)
