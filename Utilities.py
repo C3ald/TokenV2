@@ -1,5 +1,7 @@
 from Crypto.PublicKey import ECC
+from math import *
 from Crypto.Signature import eddsa
+import hashlib
 import string
 import random
 import os
@@ -21,7 +23,7 @@ class KEYS:
 		pass
 
 	def password_gen(self,length=57):
-		""" Generates a password from a length, default is 57 bytes """
+		""" Generates a password from a length, default is 57 characters """
 		characters = list(string.ascii_letters + string.digits + "!@#$%^&*()") # characters
 		random.shuffle(characters) # shuffle
 		password = []
@@ -29,21 +31,20 @@ class KEYS:
 			password.append(random.choice(characters))
 		random.shuffle(password)
 		return "".join(password)
+
 	def key_gen(self,password:str):
-		""" Generates keys """
+		""" Generates keys, public key, private key, and receiver address """
 		key = ECC.EccKey(seed=password.encode(), curve='Ed448')
 		priv = key.export_key(format='DER')
 		public = key.public_key().export_key(format='DER')
-		view_key = public * 2
-		receiver_address = self.receiver_address(public, view_key)
-		return {"private key": priv.hex(), 'public key': public.hex(), 'view key':view_key.hex(), 'receiver address': receiver_address.hex()}
+		receiver_address = self.receiver_address(public)
+		return {"private key": priv.hex(), 'public key': public.hex(), 'receiver address': receiver_address.hex()}
 	
 	
-	def receiver_address(self,public_spend_key:bytes, view_key:bytes):
-		""" Generates the receiver address for wallets by adding the two keys and then multiplying them by -2 """
-		new_key = public_spend_key + view_key * -2
-		return new_key
-
+	def receiver_address(self,public_spend_key:bytes):
+		""" Generates the primary receive address by multiplying the public spend key by 4 and hashes it in sha256 returns bytes """
+		new_key = public_spend_key * 4
+		return hashlib.sha256(str(new_key).encode()).digest()
 
 
 	def signature_gen(self, private_key:str, receiver_pub_key:str):
