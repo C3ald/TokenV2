@@ -5,6 +5,7 @@ import hashlib
 import string
 import random
 import os
+import sys
 def bytes_to_int(bytes):
 	result = 0
 	for b in bytes:
@@ -67,6 +68,26 @@ class KEYS:
 		except ValueError:
 			return False
 
+class POW:
+	""" Proof of work using a random number and multiplies it by the previous proof and then finally hashes it with sha256 if it has 4 zeros in the end it returns the proof """
+	def __init__(self):
+		self.proof = None
+	def generate_proof(self, previous_proof:int):
+		self.proof = None
+		random_bits = random.randint(1,1000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+		operation = random_bits * random_bits
+		to_hex = hashlib.sha256(str(random_bits).encode()).hexdigest()
+		if to_hex[-4] == '0000':
+			self.proof = random_bits
+			return self.proof
+		else:
+			self.proof = None
+	def run_algorithm(self, previous_proof):
+		self.proof = None
+		while self.proof == None:
+			proof = self.generate_proof(previous_proof)
+		return proof
+
 if __name__ == '__main__':
 	key = KEYS()
 	password = key.password_gen()
@@ -77,6 +98,8 @@ if __name__ == '__main__':
 	print(sign)
 	verify = key.verify_signature(sign, keys['public key'], public_key_of_receiver_in_transaction='joe')
 	print(verify)
-
+	pofw = POW()
+	proof = pofw.run_algorithm(12)
+	print(proof)
 
 
