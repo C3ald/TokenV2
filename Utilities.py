@@ -3,6 +3,19 @@ from Crypto.Signature import eddsa
 import string
 import random
 import os
+def bytes_to_int(bytes):
+	result = 0
+	for b in bytes:
+		result = result * 256 + int(b)
+	return result
+
+def int_to_bytes(value, length):
+	result = []
+	for i in range(0, length):
+		result.append(value >> (i * 8) & 0xff)
+	result.reverse()
+	return result
+
 class KEYS:
 	def __init__(self):
 		pass
@@ -19,11 +32,20 @@ class KEYS:
 	def key_gen(self,password:str):
 		""" Generates keys """
 		key = ECC.EccKey(seed=password.encode(), curve='Ed448')
-		priv = key.export_key(format='DER').hex()
-		public = key.public_key().export_key(format='DER').hex()
-		return {"private key": priv, 'public key': public}
+		priv = key.export_key(format='DER')
+		public = key.public_key().export_key(format='DER')
+		view_key = public * 2
+		receiver_address = self.receiver_address(public, view_key)
+		return {"private key": priv.hex(), 'public key': public.hex(), 'view key':view_key.hex(), 'receiver address': receiver_address.hex()}
 	
 	
+	def receiver_address(self,public_spend_key:bytes, view_key:bytes):
+		""" Generates the receiver address for wallets """
+		new_key = public_spend_key + view_key * -2
+		return new_key
+
+
+
 	def signature_gen(self, private_key:str, receiver_pub_key:str):
 		""" Makes signatures, private key is what encrypts and the receiver public key is what is encrypted """
 		message = receiver_pub_key.encode()

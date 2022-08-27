@@ -3,8 +3,7 @@ import hashlib
 import requests as r
 from tinydb import TinyDB
 from Utilities import *
-
-
+import pyrx
 
 class Blockchain:
 	""" blockchain class for all things related to the blockchain """
@@ -70,6 +69,11 @@ class Blockchain:
 			}
 		#TODO make a way to verify transactions and validate them
 		return block
+	def proof_of_work(self, previous_proof):
+		for x in range(previous_proof):
+			
+
+
 	def announce_block(self, block):
 		for node in self.nodes:
 			r.post(f"http://{node}/new_block", json={'block':block})

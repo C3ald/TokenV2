@@ -1,0 +1,6 @@
+fastapi
+cryptography
+passlib
+uvicorn
+git+https://github.com/jtgrassie/pyrx
+tinyec
