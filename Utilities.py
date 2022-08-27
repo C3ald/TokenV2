@@ -40,7 +40,7 @@ class KEYS:
 	
 	
 	def receiver_address(self,public_spend_key:bytes, view_key:bytes):
-		""" Generates the receiver address for wallets """
+		""" Generates the receiver address for wallets by adding the two keys and then multiplying them by -2 """
 		new_key = public_spend_key + view_key * -2
 		return new_key
 
