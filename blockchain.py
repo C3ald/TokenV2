@@ -74,18 +74,20 @@ class Blockchain:
     def proof_of_work(self, previous_proof):
         new_proof = 1
         check_proof = False
-        work = "0"*17
+        work = "0"*5
+        max_size = sys.maxsize
         print(f"current work: {work}")
+        print(f"max integer: {max_size}")
         chain = self.chain
         while check_proof is False:
-          if chain == self.chain:
-                 hash_op = hashlib.scrypt(str(new_proof**2 - previous_proof**2).encode(), n=1024, r=1, p=1, salt=f"{random.randint(-1*sys.maxsize, sys.maxsize)}".encode()).hex()
+          if chain == self.chain: # proof of work algorithm: new_proof**2 - previous_proof**2
+                 hash_op = hashlib.scrypt(str(new_proof**2 - previous_proof**2).encode(), n=1024, r=1, p=1, salt=f"{work}".encode()).hex()
                  if hash_op[:len(work)] == work:
                          check_proof = True
                          print(hash_op)
                  else:
                          new_proof += 1
-        else:
+          else:
                 check_proof = False
                 return new_proof
 
